@@ -13,106 +13,95 @@
 
 <body>
 
-    <!-- LOGIN AND REGISTER PAGE -->
+    <!-- USER LOGIN AND REGISTER -->
 
     <div class="container" id="authContainer">
 
         <h1>AI Lost and Found Portal</h1>
-
         <p>Find what you lost. Return what you found.</p>
 
-        <!-- LOGIN SECTION -->
+        <!-- USER LOGIN -->
 
         <div class="login-box" id="loginBox">
 
-            <h2>Login</h2>
+            <h2>User Login</h2>
 
-            <input
-                type="email"
-                id="loginEmail"
-                placeholder="Email"
-                required
-            >
-
-            <input
-                type="password"
-                id="loginPassword"
-                placeholder="Password"
-                required
-            >
+            <input type="email" id="loginEmail" placeholder="Email" required>
+            <input type="password" id="loginPassword" placeholder="Password" required>
 
             <button type="button" id="loginBtn">Login</button>
 
             <p id="loginMessage"></p>
 
             <p>Don't have an account?</p>
-
             <button type="button" id="showRegister">Register</button>
+
+            <hr>
+
+            <button type="button" id="showAdminLogin">
+                Admin Login
+            </button>
 
         </div>
 
-        <!-- REGISTER SECTION -->
+        <!-- USER REGISTER -->
 
         <div class="login-box" id="registerBox" style="display: none;">
 
-            <h2>Create Account</h2>
+            <h2>Create User Account</h2>
 
-            <input
-                type="text"
-                id="registerName"
-                placeholder="Full Name"
-                required
-            >
-
-            <input
-                type="email"
-                id="registerEmail"
-                placeholder="Email"
-                required
-            >
-
-            <input
-                type="password"
-                id="registerPassword"
-                placeholder="Password"
-                required
-            >
-
-            <input
-                type="password"
-                id="confirmPassword"
-                placeholder="Confirm Password"
-                required
-            >
+            <input type="text" id="registerName" placeholder="Full Name" required>
+            <input type="email" id="registerEmail" placeholder="Email" required>
+            <input type="password" id="registerPassword" placeholder="Password" required>
+            <input type="password" id="confirmPassword" placeholder="Confirm Password" required>
 
             <button type="button" id="registerBtn">Create Account</button>
 
             <p id="registerMessage"></p>
 
             <p>Already have an account?</p>
-
             <button type="button" id="showLogin">Back to Login</button>
+
+        </div>
+
+        <!-- ADMIN LOGIN -->
+
+        <div class="login-box" id="adminLoginBox" style="display: none;">
+
+            <h2>Admin Login</h2>
+
+            <input type="email" id="adminEmail" placeholder="Admin Email" required>
+            <input type="password" id="adminPassword" placeholder="Admin Password" required>
+
+            <button type="button" id="adminLoginBtn">Admin Login</button>
+
+            <p id="adminLoginMessage"></p>
+
+            <button type="button" id="backToUserLogin">
+                Back to User Login
+            </button>
 
         </div>
 
     </div>
 
 
-    <!-- STUDENT DASHBOARD -->
+    <!-- USER DASHBOARD -->
 
     <div class="dashboard" id="dashboard" style="display: none;">
 
-        <!-- DASHBOARD HEADING -->
-
         <div class="dashboard-heading">
 
-            <h1>Welcome to Lost and Found</h1>
+            <h1>Welcome, <span id="userWelcomeName">User</span>!</h1>
 
+            <p id="userWelcomeEmail"></p>
             <p>Find what you lost. Return what you found.</p>
+
+            <button type="button" id="userLogoutBtn">Logout</button>
 
         </div>
 
-        <!-- DASHBOARD STATISTICS -->
+        <!-- STATISTICS -->
 
         <div class="stats-container">
 
@@ -133,44 +122,26 @@
 
         </div>
 
-        <!-- DASHBOARD OPTIONS -->
+        <!-- USER OPTIONS -->
 
         <div class="dashboard-options">
 
             <div class="dashboard-card">
-
                 <h2>🔍 Report Lost Item</h2>
-
                 <p>Report an item you have lost.</p>
-
-                <button type="button" id="lostBtn">
-                    Report Lost
-                </button>
-
+                <button type="button" id="lostBtn">Report Lost</button>
             </div>
 
             <div class="dashboard-card">
-
                 <h2>📦 Report Found Item</h2>
-
                 <p>Report an item you have found.</p>
-
-                <button type="button" id="foundBtn">
-                    Report Found
-                </button>
-
+                <button type="button" id="foundBtn">Report Found</button>
             </div>
 
             <div class="dashboard-card">
-
                 <h2>📋 View All Items</h2>
-
                 <p>Search for lost and found items.</p>
-
-                <button type="button" id="viewBtn">
-                    View Items
-                </button>
-
+                <button type="button" id="viewBtn">View Items</button>
             </div>
 
         </div>
@@ -183,24 +154,16 @@
     <div class="form-container" id="lostForm" style="display: none;">
 
         <h1>Report Lost Item</h1>
-
         <p>Please provide the details of your lost item.</p>
 
         <form id="lostItemForm">
 
             <label for="itemName">Item Name</label>
-
-            <input
-                type="text"
-                id="itemName"
-                placeholder="Example: Black Wallet"
-                required
-            >
+            <input type="text" id="itemName" placeholder="Example: Black Wallet" required>
 
             <label for="itemCategory">Item Category</label>
 
             <select id="itemCategory" required>
-
                 <option value="">Select Category</option>
                 <option value="Electronics">Electronics</option>
                 <option value="Wallet">Wallet</option>
@@ -208,48 +171,24 @@
                 <option value="Books">Books</option>
                 <option value="Keys">Keys</option>
                 <option value="Others">Others</option>
-
             </select>
 
             <label for="itemDescription">Description</label>
-
-            <textarea
-                id="itemDescription"
-                placeholder="Describe your lost item..."
-                rows="4"
-                required
-            ></textarea>
+            <textarea id="itemDescription" placeholder="Describe your lost item..." rows="4" required></textarea>
 
             <label for="lostLocation">Lost Location</label>
-
-            <input
-                type="text"
-                id="lostLocation"
-                placeholder="Example: College Library"
-                required
-            >
+            <input type="text" id="lostLocation" placeholder="Example: College Library" required>
 
             <label for="lostDate">Date Lost</label>
-
             <input type="date" id="lostDate" required>
 
             <label for="lostImage">Upload Lost Item Image</label>
-
-            <input
-                type="file"
-                id="lostImage"
-                accept="image/*"
-            >
+            <input type="file" id="lostImage" accept="image/*">
 
             <div id="lostImagePreview"></div>
 
-            <button type="submit" id="submitLost">
-                Submit Lost Report
-            </button>
-
-            <button type="button" id="backDashboard">
-                Back to Dashboard
-            </button>
+            <button type="submit" id="submitLost">Submit Lost Report</button>
+            <button type="button" id="backDashboard">Back to Dashboard</button>
 
         </form>
 
@@ -261,24 +200,16 @@
     <div class="form-container" id="foundForm" style="display: none;">
 
         <h1>Report Found Item</h1>
-
         <p>Please provide details of the item you found.</p>
 
         <form id="foundItemForm">
 
             <label for="foundItemName">Item Name</label>
-
-            <input
-                type="text"
-                id="foundItemName"
-                placeholder="Example: Blue Water Bottle"
-                required
-            >
+            <input type="text" id="foundItemName" placeholder="Example: Blue Water Bottle" required>
 
             <label for="foundCategory">Item Category</label>
 
             <select id="foundCategory" required>
-
                 <option value="">Select Category</option>
                 <option value="Electronics">Electronics</option>
                 <option value="Wallet">Wallet</option>
@@ -286,48 +217,24 @@
                 <option value="Books">Books</option>
                 <option value="Keys">Keys</option>
                 <option value="Others">Others</option>
-
             </select>
 
             <label for="foundDescription">Description</label>
-
-            <textarea
-                id="foundDescription"
-                placeholder="Describe the item you found..."
-                rows="4"
-                required
-            ></textarea>
+            <textarea id="foundDescription" placeholder="Describe the item you found..." rows="4" required></textarea>
 
             <label for="foundLocation">Found Location</label>
-
-            <input
-                type="text"
-                id="foundLocation"
-                placeholder="Example: College Canteen"
-                required
-            >
+            <input type="text" id="foundLocation" placeholder="Example: College Canteen" required>
 
             <label for="foundDate">Date Found</label>
-
             <input type="date" id="foundDate" required>
 
             <label for="foundImage">Upload Found Item Image</label>
-
-            <input
-                type="file"
-                id="foundImage"
-                accept="image/*"
-            >
+            <input type="file" id="foundImage" accept="image/*">
 
             <div id="foundImagePreview"></div>
 
-            <button type="submit" id="submitFound">
-                Submit Found Report
-            </button>
-
-            <button type="button" id="backFromFound">
-                Back to Dashboard
-            </button>
+            <button type="submit" id="submitFound">Submit Found Report</button>
+            <button type="button" id="backFromFound">Back to Dashboard</button>
 
         </form>
 
@@ -339,24 +246,15 @@
     <div class="form-container" id="viewItemsPage" style="display: none;">
 
         <h1>📋 All Lost and Found Items</h1>
-
         <p>Search and view reported items.</p>
 
-        <input
-            type="text"
-            id="searchItems"
-            placeholder="Search by item name or location..."
-        >
+        <input type="text" id="searchItems" placeholder="Search by item name or location...">
 
         <select id="itemFilter">
-
             <option value="All">All Items</option>
             <option value="Lost">Lost Items</option>
             <option value="Found">Found Items</option>
-
         </select>
-
-        <!-- AI MATCHING SECTION -->
 
         <div class="matches-container">
 
@@ -368,32 +266,79 @@
             </p>
 
             <div id="matchesList">
-
                 <p>No possible matches available yet.</p>
-
             </div>
 
         </div>
 
-        <!-- ALL REPORTED ITEMS -->
-
         <div id="itemsList">
-
             <p>No items reported yet.</p>
+        </div>
+
+        <button type="button" id="backFromItems">Back to Dashboard</button>
+
+    </div>
+
+
+    <!-- ADMIN DASHBOARD -->
+
+    <div class="dashboard" id="adminDashboard" style="display: none;">
+
+        <div class="dashboard-heading">
+
+            <h1>Welcome, Admin!</h1>
+            <p>Select an option below to view data.</p>
 
         </div>
 
-        <button type="button" id="backFromItems">
-            Back to Dashboard
+        <div class="dashboard-options">
+
+            <div class="dashboard-card">
+                <h2>👥 Users</h2>
+                <p>View registered users.</p>
+                <button type="button" id="adminUsersBtn">Users</button>
+            </div>
+
+            <div class="dashboard-card">
+                <h2>🔍 Lost Items</h2>
+                <p>View and manage lost item reports.</p>
+                <button type="button" id="adminLostBtn">Lost Items</button>
+            </div>
+
+            <div class="dashboard-card">
+                <h2>📦 Found Items</h2>
+                <p>View and manage found item reports.</p>
+                <button type="button" id="adminFoundBtn">Found Items</button>
+            </div>
+
+        </div>
+
+        <button type="button" id="adminLogoutBtn">Logout</button>
+
+    </div>
+
+
+    <!-- ADMIN DATA PAGE
+         IMPORTANT: This is now outside adminDashboard -->
+
+    <div class="form-container" id="adminDataPage" style="display: none;">
+
+        <h2 id="adminSectionTitle">Select an option above to view data.</h2>
+
+        <div id="adminDataList">
+            <p>Select an option above to view data.</p>
+        </div>
+
+        <button type="button" id="backAdminDashboard">
+            Back to Admin Dashboard
         </button>
 
     </div>
 
 
-    <!-- JAVASCRIPT CONNECTION -->
+    <!-- JAVASCRIPT -->
 
     <script src="./script.js"></script>
 
 </body>
-
 </html>
