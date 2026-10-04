@@ -1,5 +1,5 @@
-
 document.addEventListener("DOMContentLoaded", function () {
+    const API_URL = "http://localhost:3001/api/items";
 
     // =====================================
     // 1. GET HTML ELEMENTS
@@ -60,17 +60,86 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     let items = JSON.parse(localStorage.getItem("lostFoundItems")) || [];
-
-    if (!Array.isArray(items)) {
-        items = [];
-    }
-
     let currentUserEmail = "";
-    let currentUserName = "";
-    let isAdmin = false;
+let currentUserName = "";
+let isAdmin = false;
 
-    let lostImageData = "";
-    let foundImageData = "";
+let lostImageData = "";
+let foundImageData = "";
+
+if (!Array.isArray(items)) {
+    items = [];
+}
+
+async function loadItemsFromAPI() {
+
+    try {
+
+        const response = await fetch(API_URL);
+
+        if (!response.ok) {
+            throw new Error("Failed to fetch items");
+        }
+
+        const data = await response.json();
+
+        if (!Array.isArray(data.items)) {
+            throw new Error("Invalid items data received from server");
+        }
+
+        items = data.items.map(function (item) {
+
+            return {
+                ...item,
+                id: String(item._id),
+                name: item.itemName,
+                type: String(item.type || "").toLowerCase()
+            };
+
+        });
+
+        saveItems();
+
+        console.log("Items loaded from MongoDB:", items);
+
+        return true;
+
+    } catch (error) {
+
+        console.error("Error loading items:", error);
+
+        return false;
+
+    }
+}
+    try {
+        const response = await fetch(API_URL);
+
+        if (!response.ok) {
+            throw new Error("Failed to fetch items");
+        }
+
+        const data = await response.json();
+
+        items = data.items.map(item => ({
+            ...item,
+            id: item._id,
+            name: item.itemName,
+            type: item.type.toLowerCase()
+        }));
+
+        saveItems();
+
+        console.log("Items loaded from MongoDB:", items);
+
+        return true;
+
+    } catch (error) {
+        console.error("Error loading items:", error);
+        return false;
+    }
+}
+
 
     function saveUsers() {
         localStorage.setItem("portalUsers", JSON.stringify(users));
@@ -414,97 +483,177 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
     // =====================================
-    // 13. REPORT LOST ITEM
-    // =====================================
+// 13. REPORT LOST ITEM
+// =====================================
 
-    lostItemForm.addEventListener("submit", function (event) {
+lostItemForm.addEventListener("submit", async function (event) {
 
-        event.preventDefault();
+    event.preventDefault();
 
-        if (!currentUserEmail || isAdmin) {
-            alert("Please login as a user first.");
-            return;
+    if (!currentUserEmail || isAdmin) {
+        alert("Please login as a user first.");
+        return;
+    }
+
+    const item = {
+        name: getField("itemName"),
+        category: getField("itemCategory"),
+        description: getField("itemDescription"),
+        location: getField("lostLocation"),
+        date: getField("lostDate"),
+        image: lostImageData
+    };
+
+    if (
+        !item.name ||
+        !item.category ||
+        !item.description ||
+        !item.location ||
+        !item.date
+    ) {
+        alert("Please fill all required fields.");
+        return;
+    }
+
+    try {
+
+        const response = await fetch(API_URL, {
+            method: "POST",
+
+            headers: {
+                "Content-Type": "application/json"
+            },
+
+            body: JSON.stringify({
+                itemName: item.name,
+                category: item.category,
+                description: item.description,
+                location: item.location,
+                date: item.date,
+                type: "Lost",
+                status: "Available",
+                image: item.image,
+                ownerName: currentUserName,
+                ownerEmail: currentUserEmail
+            })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.message || "Failed to save lost item");
         }
 
-        const item = {
-            id: createId(),
-            type: "lost",
-            name: getField("itemName"),
-            category: getField("itemCategory"),
-            description: getField("itemDescription"),
-            location: getField("lostLocation"),
-            date: getField("lostDate"),
-            image: lostImageData,
-            status: "pending",
-            ownerEmail: currentUserEmail,
-            ownerName: currentUserName,
-            createdAt: new Date().toISOString()
-        };
+        await loadItemsFromAPI();
 
-        if (!item.name || !item.category || !item.description ||
-            !item.location || !item.date) {
-            alert("Please fill all required fields.");
-            return;
-        }
-
-        items.push(item);
-        saveItems();
         updateStatistics();
 
         lostItemForm.reset();
+
         lostImageData = "";
+
         document.getElementById("lostImagePreview").innerHTML = "";
 
         alert("Lost item report submitted successfully!");
+
         showPage(dashboard);
-    });
+
+    } catch (error) {
+
+        console.error("Lost item save error:", error);
+
+        alert("Could not save the lost item to MongoDB.");
+
+    }
+
+});
 
 
     // =====================================
-    // 14. REPORT FOUND ITEM
-    // =====================================
+// 14. REPORT FOUND ITEM
+// =====================================
 
-    foundItemForm.addEventListener("submit", function (event) {
+foundItemForm.addEventListener("submit", async function (event) {
 
-        event.preventDefault();
+    event.preventDefault();
 
-        if (!currentUserEmail || isAdmin) {
-            alert("Please login as a user first.");
-            return;
+    if (!currentUserEmail || isAdmin) {
+        alert("Please login as a user first.");
+        return;
+    }
+
+    const item = {
+        name: getField("foundItemName"),
+        category: getField("foundCategory"),
+        description: getField("foundDescription"),
+        location: getField("foundLocation"),
+        date: getField("foundDate"),
+        image: foundImageData
+    };
+
+    if (
+        !item.name ||
+        !item.category ||
+        !item.description ||
+        !item.location ||
+        !item.date
+    ) {
+        alert("Please fill all required fields.");
+        return;
+    }
+
+    try {
+
+        const response = await fetch(API_URL, {
+            method: "POST",
+
+            headers: {
+                "Content-Type": "application/json"
+            },
+
+            body: JSON.stringify({
+                itemName: item.name,
+                category: item.category,
+                description: item.description,
+                location: item.location,
+                date: item.date,
+                type: "Found",
+                status: "Available",
+                image: item.image,
+                ownerName: currentUserName,
+                ownerEmail: currentUserEmail
+            })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.message || "Failed to save found item");
         }
 
-        const item = {
-            id: createId(),
-            type: "found",
-            name: getField("foundItemName"),
-            category: getField("foundCategory"),
-            description: getField("foundDescription"),
-            location: getField("foundLocation"),
-            date: getField("foundDate"),
-            image: foundImageData,
-            status: "pending",
-            ownerEmail: currentUserEmail,
-            ownerName: currentUserName,
-            createdAt: new Date().toISOString()
-        };
+        await loadItemsFromAPI();
 
-        if (!item.name || !item.category || !item.description ||
-            !item.location || !item.date) {
-            alert("Please fill all required fields.");
-            return;
-        }
-
-        items.push(item);
-        saveItems();
         updateStatistics();
 
         foundItemForm.reset();
+
         foundImageData = "";
+
         document.getElementById("foundImagePreview").innerHTML = "";
 
         alert("Found item report submitted successfully!");
+
         showPage(dashboard);
-    });
+
+    } catch (error) {
+
+        console.error("Found item save error:", error);
+
+        alert("Could not save the found item to MongoDB.");
+
+    }
+
+});
 
 
     // =====================================
@@ -538,7 +687,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
         itemsList.innerHTML = filteredItems.map(function (item) {
 
-            const isOwner = item.ownerEmail === currentUserEmail;
+            const isOwner =
+    Boolean(currentUserEmail) &&
+    item.ownerEmail === currentUserEmail &&
+    !isAdmin;
 
             return `
                 <div class="item-card ${item.type}">
@@ -556,14 +708,14 @@ document.addEventListener("DOMContentLoaded", function () {
                     <p><strong>Description:</strong> ${escapeHTML(item.description)}</p>
                     <p><strong>Location:</strong> ${escapeHTML(item.location)}</p>
                     <p><strong>Date:</strong> ${escapeHTML(item.date)}</p>
-                    <p><strong>Status:</strong> ${escapeHTML(item.status)}</p>
+                    <p><strong>Status:</strong> ${String(item.status || "Available").toLowerCase() === "returned" ? "Returned" : "Available"}</p>
                     <p><strong>Reported by:</strong> ${escapeHTML(item.ownerName)}</p>
 
-                    ${isOwner && item.type === "found" && item.status === "found" ? `
-                        <button onclick="markReturned('${item.id}')">
-                            Mark as Returned
-                        </button>
-                    ` : ""}
+                    ${isOwner && item.type === "found" && String(item.status).toLowerCase() !== "returned" ? `
+<button onclick="markReturned('${item.id}')">
+    Mark as Returned
+</button>
+` : ""}
 
                     ${isOwner ? `
                         <button onclick="editItem('${item.id}')">Edit</button>
@@ -579,39 +731,62 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
     // =====================================
-    // 16. USER DELETE ITEM
-    // =====================================
+// DELETE ITEM FROM MONGODB
+// =====================================
 
-    window.deleteItem = function (id) {
+window.deleteItem = async function (id) {
 
-        const item = items.find(item => item.id === id);
+    const confirmDelete = confirm(
+        "Are you sure you want to delete this item?"
+    );
 
-        if (!item || item.ownerEmail !== currentUserEmail || isAdmin) {
-            alert("You can delete only your own items.");
-            return;
+    if (!confirmDelete) {
+        return;
+    }
+
+    try {
+
+        const response = await fetch(`${API_URL}/${id}`, {
+            method: "DELETE"
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.message || "Delete failed");
         }
 
-        if (confirm("Are you sure you want to delete this item?")) {
+        await loadItemsFromAPI();
 
-            items = items.filter(item => item.id !== id);
+        updateStatistics();
 
-            saveItems();
-            updateStatistics();
-            displayItems();
-        }
-    };
+        displayItems();
+
+        alert("Item deleted successfully from MongoDB!");
+
+    } catch (error) {
+
+        console.error("Delete item error:", error);
+
+        alert("Could not delete item from MongoDB.");
+
+    }
+};
 
 
+
+
+    
     // =====================================
     // 17. USER EDIT ITEM
     // =====================================
 
-    window.editItem = function (id) {
+    window.editItem = async function (id) {
 
         const item = items.find(item => item.id === id);
 
-        if (!item || item.ownerEmail !== currentUserEmail || isAdmin) {
-            alert("You can edit only your own items.");
+        if (!item) {
+            alert("Item not found.");
             return;
         }
 
@@ -624,40 +799,90 @@ document.addEventListener("DOMContentLoaded", function () {
         const newDescription = prompt("Enter description:", item.description);
         if (newDescription === null || !newDescription.trim()) return;
 
-        item.name = newName.trim();
-        item.location = newLocation.trim();
-        item.description = newDescription.trim();
+        try {
 
-        saveItems();
-        displayItems();
+            const response = await fetch(`${API_URL}/${id}`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    itemName: newName.trim(),
+                    location: newLocation.trim(),
+                    description: newDescription.trim()
+                })
+            });
 
-        alert("Item updated successfully!");
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || "Update failed");
+            }
+
+            await loadItemsFromAPI();
+            updateStatistics();
+            displayItems();
+
+            alert("Item updated successfully in MongoDB!");
+
+        } catch (error) {
+
+            console.error("Edit item error:", error);
+            alert("Could not update item in MongoDB.");
+
+        }
     };
 
 
+
     // =====================================
-    // 18. MARK ITEM RETURNED BY USER
-    // =====================================
+// 18. MARK ITEM RETURNED - MONGODB
+// =====================================
 
-    window.markReturned = function (id) {
+window.markReturned = async function (id) {
 
-        const item = items.find(item => item.id === id);
+    const item = items.find(item => item.id === id);
 
-        if (!item || item.type !== "found") return;
+    if (!item || item.type !== "found") {
+        alert("Found item not found.");
+        return;
+    }
 
-        if (item.ownerEmail !== currentUserEmail || isAdmin) {
-            alert("Only the reporting user can mark it returned.");
-            return;
+    if (!confirm("Are you sure this item has been returned to its owner?")) {
+        return;
+    }
+
+    try {
+
+        const response = await fetch(`${API_URL}/${id}/return`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json"
+            }
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.message || "Failed to update status");
         }
 
-        item.status = "returned";
+        await loadItemsFromAPI();
 
-        saveItems();
         updateStatistics();
+
         displayItems();
 
-        alert("Item marked as returned!");
-    };
+        alert("Item marked as returned successfully in MongoDB!");
+
+    } catch (error) {
+
+        console.error("Mark returned error:", error);
+
+        alert("Could not update returned status in MongoDB.");
+
+    }
+};
 
 
     // =====================================
@@ -709,16 +934,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const lostItems = items.filter(function (item) {
             return item.type === "lost" &&
-                item.status !== "returned" &&
-                item.status !== "rejected" &&
-                matchesSearch(item);
+    !["returned", "rejected"].includes(String(item.status || "").toLowerCase()) &&
+    matchesSearch(item);
         });
 
         const foundItems = items.filter(function (item) {
             return item.type === "found" &&
-                item.status !== "returned" &&
-                item.status !== "rejected" &&
-                matchesSearch(item);
+    !["returned", "rejected"].includes(String(item.status || "").toLowerCase()) &&
+    matchesSearch(item);
         });
 
         let matches = [];
@@ -906,7 +1129,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const lost = items.filter(item => item.type === "lost").length;
         const found = items.filter(item => item.type === "found").length;
-        const returned = items.filter(item => item.status === "returned").length;
+        const returned = items.filter(item => String(item.status || "").toLowerCase() === "returned").length;
 
         lostCount.textContent = lost;
         foundCount.textContent = found;
@@ -1121,6 +1344,10 @@ document.addEventListener("DOMContentLoaded", function () {
     // =====================================
 
     showPage(loginBox);
+
+loadItemsFromAPI().then(function () {
     updateStatistics();
+    displayItems();
+});
 
 });
